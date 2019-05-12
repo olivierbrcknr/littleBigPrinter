@@ -1,0 +1,12 @@
+{
+  "name": "littlePrinter",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/olivierbrcknr/littlePrinter.git",
+  "author": "Olivier Brückner <25103920+olivierbrcknr@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "serialport": "^7.1.5",
+    "thermalprinter": "^0.3.8"
+  }
+}
