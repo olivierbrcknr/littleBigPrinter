@@ -1,12 +1,12 @@
 // Modules Printer
 const SerialPort = require('serialport');
 const Printer = require('thermalprinter');
-// const path = require("path");
 
 // Modules Hardware
 const five = require('johnny-five');
 const Raspi = require('raspi-io').RaspiIO;
 
+const icon = require('./matrix-icons');
 
 
 // ——————————————————————————————————————————
@@ -59,19 +59,6 @@ sp.on('open',function() {
     });
 });
 
-// Matrix Symbols
-const heart = [
-    "01100110",
-    "10011001",
-    "10000001",
-    "10000001",
-    "01000010",
-    "00100100",
-    "00011000",
-    "00000000"
-];
-
-
 
 board.on('ready', () => {
 
@@ -92,7 +79,7 @@ board.on('ready', () => {
     matrix.clear();
 
     btn.on("down", function() {
-        matrix.draw(heart);
+        matrix.draw(icon.heart);
         printer
             .bold(true)
             .indent(10)

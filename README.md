@@ -16,19 +16,12 @@
 
 --> Find suitable files within the `00_pi-setup` folder.
 
-## Enable GPIO and I2C
-
-```sh
-sudo raspi-config
-```
-
-
 ## Find Raspberry in terminal
 
 to find the IP, connect a screen/keyboard to the pi and open a terminal and write `ifconfig` and look for the ip address of `eth0` 
 or to find it from your computer, install *arp-scan* `brew install arp-scan` and then run `sudo arp-scan --localnet`  and search for 'Raspberry'.
 
-`ssh pi@10.9.2.18` (← Enter here your Raspberry's IP address) password is `raspberry`
+`ssh pi@<IP-address>` (← Enter here your Raspberry's IP address) password is `raspberry`
 
 connect via FTP to upload your code 
 ```
@@ -37,6 +30,14 @@ Username = pi
 Password = raspberry
 Port = 22
 ```
+
+## Enable GPIO and I2C
+
+Open the Raspberry in your terminal and open the config to enable GPI and I2C.
+```sh
+sudo raspi-config
+```
+
 
 ## Node
 
@@ -67,11 +68,6 @@ Edit this file
 And add this:
 ```sh
 # Run shell script to boot node js server
-@sh /home/pi/Desktop/vinylviz/boot.sh
-@sleep 5s # give time to start node server
-@xset s off
-@xset -dpms
-@xset s noblank
-@chromium-browser --kiosk http://localhost:3000/
+@sh /home/pi/Desktop/vinylviz/boot.sh # this script automatically starts the node script
 ```
-Then reboot. Chromium should automatically launch in fullscreen mode after the desktop has loaded.
+Then reboot.
