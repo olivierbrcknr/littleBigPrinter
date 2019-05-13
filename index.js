@@ -1,11 +1,12 @@
 // Modules Printer
 const SerialPort = require('serialport');
 const Printer = require('thermalprinter');
-const path = require("path");
+// const path = require("path");
 
 // Modules Hardware
 const five = require('johnny-five');
 const Raspi = require('raspi-io').RaspiIO;
+
 
 
 // ——————————————————————————————————————————
@@ -30,7 +31,7 @@ function resetPrinterSettings(){
 
 
  
-// var path = __dirname + '/images/nodebot.png';
+var path = __dirname + '/images/nodebot.png';
 
 
 
@@ -50,7 +51,7 @@ sp.on('open',function() {
             .big(true)
             .right()
             .printLine('second line')
-            // .printImage(path)
+            .printImage(path)
             .print(function() {
                 console.log('Init Done');
                 resetPrinterSettings();
