@@ -16,6 +16,12 @@
 
 --> Find suitable files within the `00_pi-setup` folder.
 
+## Enable GPIO and I2C
+
+```sh
+sudo raspi-config
+```
+
 
 ## Find Raspberry in terminal
 
