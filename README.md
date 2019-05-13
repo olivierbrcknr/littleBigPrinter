@@ -3,28 +3,30 @@
 
 ## Install Raspbian
 
-(Link)[https://www.raspberrypi.org/documentation/installation/installing-images/]
+[Link](https://www.raspberrypi.org/documentation/installation/installing-images/)
 
 
 ## Allow SSH connections
 
-(Link)[https://hackernoon.com/raspberry-pi-headless-install-462ccabd75d0]
+[Link](https://hackernoon.com/raspberry-pi-headless-install-462ccabd75d0)
 
 ## Configure WiFi
 
-(Link)[https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi]
+[Link](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi)
+
+--> Find suitable files within the `00_pi-setup` folder.
 
 
 ## Find Raspberry in terminal
 
 to find the IP, connect a screen/keyboard to the pi and open a terminal and write `ifconfig` and look for the ip address of `eth0` 
-or to find it from your computer, install *arp-scan* `brew install arp-scan` and then run `sudo arp-scan --localnet --interface=en7` (en7 may be different on your machine)
+or to find it from your computer, install *arp-scan* `brew install arp-scan` and then run `sudo arp-scan --localnet`  and search for 'Raspberry'.
 
 `ssh pi@10.9.2.18` (← Enter here your Raspberry's IP address) password is `raspberry`
 
 connect via FTP to upload your code 
 ```
-Host = IP
+Host = <IP-address>
 Username = pi
 Password = raspberry
 Port = 22
@@ -45,7 +47,7 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update && sudo apt-get install yarn
 ```
 
-More detailed description (here)[https://www.hackster.io/IainIsCreative/setting-up-the-raspberry-pi-and-johnny-five-56d60f].
+More detailed description [here](https://www.hackster.io/IainIsCreative/setting-up-the-raspberry-pi-and-johnny-five-56d60f).
 
 ## Install software
 
