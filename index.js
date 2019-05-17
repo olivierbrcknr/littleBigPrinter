@@ -21,6 +21,11 @@ let sp = new SerialPort('/dev/ttyUSB0', {
 let printer = null;
 let matrix = null;
 
+let printerReady = false;
+let j5Ready = false;
+
+let holdCounter = 0;
+
 function resetPrinterSettings(){
     printer
         .bold(false)
@@ -62,6 +67,7 @@ sp.on('open',function() {
     printer = new Printer(sp);
 
     printer.on('ready', function() {
+        printerReady = true;
         console.log('Printer ready 🖨');
         resetPrinterSettings();
 
@@ -74,8 +80,8 @@ sp.on('open',function() {
 // init Johnny-five
 board.on('ready', () => {
 
+    j5Ready = true;
     console.log('J5 Ready 🤖');
-
 
     // Setup hardware
     matrix = new five.Led.Matrix({
@@ -84,13 +90,37 @@ board.on('ready', () => {
         rotation: 1
     });
 
-    let btn = new five.Button("P1-11");
+    let btn = new five.Button({
+        pin: "P1-13",
+        isPullup: true
+    });
+
+
+    btn.on("hold", function() {
+        console.log( holdCounter );
+        holdCounter++;
+        if ( holdCounter >= 6 ) {
+            shutdownLittlePrinter();
+        }
+    });
+    btn.on("release", function(){
+        holdCounter = 0;
+    });
 
     // Run code
     matrix.clear();
-    pulse( icon.check , 1 , 0.5 );
+    // pulse( icon.check , 1 , 0.5 );
+
+    sinusAnim( icon.sinus , 3000 );
 
 });
+
+
+
+function shutdownLittlePrinter(){
+    console.log('LittlePrinter is shutting down 😴');
+    process.exit();
+}
 
 
 // Matrix functions
