@@ -1,3 +1,13 @@
+# LittleBigPrinter
+
+This is a new version of a fax machine. 
+
+
+# Hardware Setup
+
+The laser file for the case iy in the `00_case` folder. It is intended for 3mm thick acrylic glass.
+
+
 # Raspberry Pi Setup
 
 
@@ -71,3 +81,17 @@ And add this:
 @sh /home/pi/Desktop/vinylviz/boot.sh # this script automatically starts the node script
 ```
 Then reboot.
+
+# Setup IMAP
+
+Include your credentials within a `imapData.js`, including the following code:
+
+```js
+module.exports = {
+	imapData : {
+		'user': <Your Mail>,
+	    'password': <Your Password>,
+	    'host': <Your Host Server>
+  	}
+};
+```

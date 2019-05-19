@@ -6,7 +6,26 @@ const Printer = require('thermalprinter');
 const five  = require('johnny-five');
 const Raspi = require('raspi-io').RaspiIO;
 
+// Other Modules
+const exec = require('child_process').exec;
+const imaps = require('imap-simple');
+const simpleParser = require('mailparser').simpleParser;
+const _ = require('lodash');
+
+// own fns
+const imapData = require('./imapData').imapData;
 const icon = require('./matrix-icons');
+
+let config = {
+    imap: {
+        user: imapData.user,
+        password: imapData.password,
+        host: imapData.host,
+        port: 993,
+        tls: true,
+        authTimeout: 3000
+    }
+}
 
 // ——————————————————————————————————————————
 
@@ -63,19 +82,67 @@ function resetPrinterSettings(){
 sp.on('open',function() {
 
     console.log('Serialport ready 🔌');
-    
-    printer = new Printer(sp);
+     printer = new Printer(sp);
 
     printer.on('ready', function() {
         printerReady = true;
         console.log('Printer ready 🖨');
         resetPrinterSettings();
 
-        printer.printLine('LittlePrinter is ready!').print(function() {
-            resetPrinterSettings();
-        });
+        printer
+            .printLine('// LittlePrinter is ready')
+            .printLine(' ')
+            .print(function() {
+                resetPrinterSettings();
+            });
     });
 });
+
+
+// IMAP –––––––––
+function checkMails(){
+
+    console.log('Checking for Mails ✉️');
+    sinusAnim( icon.sinus , 3000 );
+
+    imaps.connect(config).then(function (connection) {
+        return connection.openBox('INBOX',false).then(function () {
+            var delay = 24 * 3600 * 7; // check the last 7 days
+            var yesterday = new Date();
+            yesterday.setTime(Date.now() - delay);
+            yesterday = yesterday.toISOString();
+            var searchCriteria = ['UNSEEN', ['SINCE', yesterday]];
+            var fetchOptions = {
+                bodies: ['HEADER', 'TEXT', ''],
+            };
+            return connection.search(searchCriteria, fetchOptions).then(function (messages) {
+
+                setTimeout( function(){
+                    if(messages.length > 0){
+                        console.log('You got mail 📬');
+                        showIconFor(icon.check , 2000);
+                    }else{
+                        console.log('No new mail, sorry 📭');
+                        showIconFor(icon.x , 2000);
+                    }
+                }, 3000);
+
+                messages.forEach(function (item) {
+                    var all = _.find(item.parts, { "which": "" })
+                    var id = item.attributes.uid;
+                    var idHeader = "Imap-Id: "+id+"\r\n";
+
+                    simpleParser(idHeader+all.body, (err, mail) => {
+                        printMail( mail );
+                    });
+
+                    // set mail to seen
+                    connection.addFlags(item.attributes.uid, "\Seen");
+                });
+            });
+        });
+    });
+}
 
 // init Johnny-five
 board.on('ready', () => {
@@ -106,24 +173,67 @@ board.on('ready', () => {
     btn.on("release", function(){
         holdCounter = 0;
     });
+    btn.on('press', function(){
+        checkMails();
+    });
 
     // Run code
     matrix.clear();
-    // pulse( icon.check , 1 , 0.5 );
 
-    sinusAnim( icon.sinus , 3000 );
+
+    // check for mail every half hour
+    let intervalTime = 60 * 60 * 1000 / 2;
+    setInterval(checkMails, intervalTime);
 
 });
+
+
+function printMail( mail ){
+
+    console.log('Printing Mail');
+    //sinusAnim( icon.sinus , 3000 );
+
+    printer
+        .horizontalLine(16)
+        .printLine(' ')
+        .bold(true)
+        .printLine(mail.from.text)
+        .bold(false)
+        .printLine(' ')
+        //.printLine(mail.subject)
+        .printLine(mail.text)
+        .printLine(' ')
+        .printLine(' ')
+        .print(function() {
+            resetPrinterSettings();
+        });
+}
 
 
 
 function shutdownLittlePrinter(){
     console.log('LittlePrinter is shutting down 😴');
-    process.exit();
+    shutdown(function(output){
+        console.log(output);
+    });
+    //process.exit();
+}
+function shutdown(callback){
+    exec('shutdown now', function(error, stdout, stderr){ callback(stdout); });
 }
 
 
 // Matrix functions
+function showIconFor( icon , duration ) {
+
+    matrix.clear();
+    matrix.draw(icon);
+
+    setTimeout(function(){
+        matrix.clear();
+    }, duration);
+}
+
 function sinusAnim( icon , duration ) {
 
     const time = 150;
