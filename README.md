@@ -74,11 +74,11 @@ The code is based on node js via yarn, so open the directory and hit `yarn insta
 ## Run the node js server after boot
 
 Edit this file
-`sudo nano /home/pi/.config/lxsession/LXDE-pi/autostart`
+`sudo nano .bashrc`
 And add this:
 ```sh
-# Run shell script to boot node js server
-@sh /home/pi/Desktop/vinylviz/boot.sh # this script automatically starts the node script
+# Run node js server
+sudo node /home/pi/Desktop/littlePrinter/index.js
 ```
 Then reboot.
 

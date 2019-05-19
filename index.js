@@ -98,7 +98,6 @@ sp.on('open',function() {
     });
 });
 
-
 // IMAP –––––––––
 function checkMails(){
 
@@ -172,13 +171,16 @@ board.on('ready', () => {
     });
     btn.on("release", function(){
         holdCounter = 0;
+        checkMails();
     });
     btn.on('press', function(){
-        checkMails();
+        
     });
 
     // Run code
     matrix.clear();
+
+    sinusAnim( icon.boot , 1050 );
 
 
     // check for mail every half hour
@@ -199,8 +201,8 @@ function printMail( mail ){
         .bold(true)
         .printLine(mail.from.text)
         .bold(false)
-        .printLine(' ')
         //.printLine(mail.subject)
+        .printLine(' ')
         .printLine(mail.text)
         .printLine(' ')
         .printLine(' ')
@@ -213,9 +215,14 @@ function printMail( mail ){
 
 function shutdownLittlePrinter(){
     console.log('LittlePrinter is shutting down 😴');
-    shutdown(function(output){
-        console.log(output);
-    });
+    matrix.draw(icon.boot);
+
+    setTimeout( function(){
+        matrix.clear();
+        shutdown(function(output){
+            console.log(output);
+        });
+    }, 1200);
     //process.exit();
 }
 function shutdown(callback){
