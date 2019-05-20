@@ -206,6 +206,7 @@ function printMail( mail ){
         .printLine(mail.text)
         .printLine(' ')
         .printLine(' ')
+        .printLine(' ')
         .print(function() {
             resetPrinterSettings();
         });

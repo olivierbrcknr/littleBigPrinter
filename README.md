@@ -1,7 +1,9 @@
 # LittleBigPrinter
 
+![LittleBigPrinter](00_img/title.jpg)
 This is a new version of a fax machine. 
 
+&rarr; Send us a message via littleBigPrinter[at]gmail.com
 
 # Hardware Setup
 
@@ -24,7 +26,7 @@ The laser file for the case iy in the `00_case` folder. It is intended for 3mm t
 
 [Link](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi)
 
---> Find suitable files within the `00_pi-setup` folder.
+&rarr; Find suitable files within the `00_pi-setup` folder.
 
 ## Find Raspberry in terminal
 
@@ -73,9 +75,7 @@ The code is based on node js via yarn, so open the directory and hit `yarn insta
 
 ## Run the node js server after boot
 
-Edit this file
-`sudo nano .bashrc`
-And add this:
+Edit this file `sudo nano .bashrc` and add this:  
 ```sh
 # Run node js server
 sudo node /home/pi/Desktop/littlePrinter/index.js
@@ -90,8 +90,8 @@ Include your credentials within a `imapData.js`, including the following code:
 module.exports = {
 	imapData : {
 		'user': <Your Mail>,
-	    'password': <Your Password>,
-	    'host': <Your Host Server>
+		'password': <Your Password>,
+		'host': <Your Host Server>
   	}
 };
 ```
