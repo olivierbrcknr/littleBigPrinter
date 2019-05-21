@@ -50,6 +50,17 @@ Open the Raspberry in your terminal and open the config to enable GPI and I2C.
 sudo raspi-config
 ```
 
+Enable pigpiod like in [this git](https://github.com/joan2937/pigpio/tree/master/util).
+
+
+PS: Keep in mind to update you locales:
+```sh
+export LANGUAGE=en_GB.UTF-8
+export LANG=en_GB.UTF-8
+export LC_ALL=en_GB.UTF-8
+locale-gen en_GB.UTF-8
+sudo dpkg-reconfigure locales
+```
 
 ## Node
 

@@ -94,6 +94,7 @@ sp.on('open',function() {
             .printLine(' ')
             .print(function() {
                 resetPrinterSettings();
+                initIntervals();
             });
     });
 });
@@ -106,7 +107,7 @@ function checkMails(){
 
     imaps.connect(config).then(function (connection) {
         return connection.openBox('INBOX',false).then(function () {
-            var delay = 24 * 3600 * 7; // check the last 7 days
+            var delay = 24 * 3600 * 1000 * 7; // check the last 7 days
             var yesterday = new Date();
             yesterday.setTime(Date.now() - delay);
             yesterday = yesterday.toISOString();
@@ -143,6 +144,27 @@ function checkMails(){
     });
 }
 
+function initIntervals(){
+
+    if( printerReady && j5Ready ){
+         // Run code
+        matrix.clear();
+
+        // check for mail every half hour
+        let intervalTime = 60 * 60 * 1000 / 2;
+
+        sinusAnim( icon.boot , 1050 );
+
+        console.log('Everything is ready 🎉');
+
+        checkMails();
+
+        setInterval(checkMails, intervalTime);
+    }
+
+}
+
+
 // init Johnny-five
 board.on('ready', () => {
 
@@ -177,16 +199,7 @@ board.on('ready', () => {
         
     });
 
-    // Run code
-    matrix.clear();
-
-    sinusAnim( icon.boot , 1050 );
-
-
-    // check for mail every half hour
-    let intervalTime = 60 * 60 * 1000 / 2;
-    setInterval(checkMails, intervalTime);
-
+    initIntervals();
 });
 
 
