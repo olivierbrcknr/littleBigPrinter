@@ -1,40 +1,65 @@
 // Modules Printer
 const SerialPort = require('serialport');
 const Printer = require('thermalprinter');
+var fs = require('fs');
+// const exec = require('child_process').exec;
+
+
 
 // Modules Hardware
 const five  = require('johnny-five');
 const Raspi = require('raspi-io').RaspiIO;
 
-// Other Modules
-const exec = require('child_process').exec;
-const imaps = require('imap-simple');
-const simpleParser = require('mailparser').simpleParser;
-const _ = require('lodash');
+var firebase = require('firebase');
+const firebaseConfig = require('dotenv').config();
 
-// own fns
-const imapData = require('./imapData').imapData;
-const icon = require('./matrix-icons');
+let firestore = null;
 
-let config = {
-    imap: {
-        user: imapData.user,
-        password: imapData.password,
-        host: imapData.host,
-        port: 993,
-        tls: true,
-        authTimeout: 3000
-    }
+const config = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+};
+
+if (!firebase.apps.length) {
+
+  firestore = firebase.initializeApp(config).firestore()
+  messagesDB = firestore.collection('Messages');
+
+  console.log('Firebase initialised 🔥')
 }
+
+let readCounter = 0;
+let readData = [];
+
+const databaseFile = './Components/readData.txt';
+
+fs.readFile(databaseFile,'utf8', (err, data) => {
+  if( err ){
+    // do nothing
+  }
+  console.log('fetched array')
+  if( data ){
+    readData = data.split(",");
+  }
+});
+
+
+// const icon = require('./Components/matrix-icons');
 
 // ——————————————————————————————————————————
 
-// Variables 
+// Variables
 const board = new five.Board({
   io: new Raspi()
 });
 let sp = new SerialPort('/dev/ttyUSB0', {
-    baudRate: 19200
+  baudRate: 19200
 });
 
 let printer = null;
@@ -43,14 +68,12 @@ let matrix = null;
 let printerReady = false;
 let j5Ready = false;
 
-let holdCounter = 0;
-
 function resetPrinterSettings(){
-    printer
-        .bold(false)
-        .inverse(false)
-        .big(false)
-        .left();
+  printer
+    .bold(false)
+    .inverse(false)
+    .big(false)
+    .left();
 }
 
 /*
@@ -81,249 +104,86 @@ function resetPrinterSettings(){
 // init Printer
 sp.on('open',function() {
 
-    console.log('Serialport ready 🔌');
-     printer = new Printer(sp);
+  console.log('Serialport ready 🔌');
+  printer = new Printer(sp);
 
-    printer.on('ready', function() {
-        printerReady = true;
-        console.log('Printer ready 🖨');
-        resetPrinterSettings();
-
-        printer
-            .printLine('// LittlePrinter is ready')
-            .printLine(' ')
-            .print(function() {
-                resetPrinterSettings();
-                initIntervals();
-            });
-    });
-});
-
-// IMAP –––––––––
-function checkMails(){
-
-    console.log('Checking for Mails ✉️');
-    sinusAnim( icon.sinus , 3000 );
-
-    imaps.connect(config).then(function (connection) {
-        return connection.openBox('INBOX',false).then(function () {
-            var delay = 24 * 3600 * 1000 * 7; // check the last 7 days
-            var yesterday = new Date();
-            yesterday.setTime(Date.now() - delay);
-            yesterday = yesterday.toISOString();
-            var searchCriteria = ['UNSEEN', ['SINCE', yesterday]];
-            var fetchOptions = {
-                bodies: ['HEADER', 'TEXT', ''],
-            };
-            return connection.search(searchCriteria, fetchOptions).then(function (messages) {
-
-                setTimeout( function(){
-                    if(messages.length > 0){
-                        console.log('You got mail 📬');
-                        showIconFor(icon.check , 2000);
-                    }else{
-                        console.log('No new mail, sorry 📭');
-                        showIconFor(icon.x , 2000);
-                    }
-                }, 3000);
-
-                messages.forEach(function (item) {
-                    var all = _.find(item.parts, { "which": "" })
-                    var id = item.attributes.uid;
-                    var idHeader = "Imap-Id: "+id+"\r\n";
-
-                    simpleParser(idHeader+all.body, (err, mail) => {
-                        printMail( mail );
-                    });
-
-                    // set mail to seen
-                    connection.addFlags(item.attributes.uid, "\Seen");
-                });
-            });
-        });
-    });
-}
-
-function initIntervals(){
-
-    if( printerReady && j5Ready ){
-         // Run code
-        matrix.clear();
-
-        // check for mail every half hour
-        let intervalTime = 60 * 60 * 1000 / 2;
-
-        sinusAnim( icon.boot , 1050 );
-
-        console.log('Everything is ready 🎉');
-
-        checkMails();
-
-        setInterval(checkMails, intervalTime);
-    }
-
-}
-
-
-// init Johnny-five
-board.on('ready', () => {
-
-    j5Ready = true;
-    console.log('J5 Ready 🤖');
-
-    // Setup hardware
-    matrix = new five.Led.Matrix({
-        addresses: [0x70],
-        controller: "HT16K33",
-        rotation: 1
-    });
-
-    let btn = new five.Button({
-        pin: "P1-13",
-        isPullup: true
-    });
-
-
-    btn.on("hold", function() {
-        console.log( holdCounter );
-        holdCounter++;
-        if ( holdCounter >= 6 ) {
-            shutdownLittlePrinter();
-        }
-    });
-    btn.on("release", function(){
-        holdCounter = 0;
-        checkMails();
-    });
-    btn.on('press', function(){
-        
-    });
-
-    initIntervals();
-});
-
-
-function printMail( mail ){
-
-    console.log('Printing Mail');
-    //sinusAnim( icon.sinus , 3000 );
+  printer.on('ready', function() {
+    printerReady = true;
+    console.log('Printer ready 🖨');
+    resetPrinterSettings();
 
     printer
+      .printLine('// LittlePrinter is ready')
+      .printLine(' ')
+      .print(function() {
+        resetPrinterSettings();
+        console.log('LittlePrinter is ready');
+        // initIntervals();
+      });
+  });
+});
+
+
+
+let observer = messagesDB.onSnapshot(snapshot => {
+
+  snapshot.forEach(doc => {
+
+    if( readData.length > 0 && readData.indexOf(doc.id) <= -1 ){
+
+      printer
+        .printLine(doc.data().Message)
+        .printLine(' ')
         .horizontalLine(16)
         .printLine(' ')
-        .bold(true)
-        .printLine(mail.from.text)
-        .bold(false)
-        //.printLine(mail.subject)
-        .printLine(' ')
-        .printLine(mail.text)
-        .printLine(' ')
-        .printLine(' ')
-        .printLine(' ')
         .print(function() {
-            resetPrinterSettings();
+          resetPrinterSettings();
+          console.log('Printed Message', doc.data().Message);
+          // initIntervals();
         });
-}
 
-
-
-function shutdownLittlePrinter(){
-    console.log('LittlePrinter is shutting down 😴');
-    matrix.draw(icon.boot);
-
-    setTimeout( function(){
-        matrix.clear();
-        shutdown(function(output){
-            console.log(output);
-        });
-    }, 1200);
-    //process.exit();
-}
-function shutdown(callback){
-    exec('shutdown now', function(error, stdout, stderr){ callback(stdout); });
-}
-
-
-// Matrix functions
-function showIconFor( icon , duration ) {
-
-    matrix.clear();
-    matrix.draw(icon);
-
-    setTimeout(function(){
-        matrix.clear();
-    }, duration);
-}
-
-function sinusAnim( icon , duration ) {
-
-    const time = 150;
-
-    let frames = 10;
-    if( duration ){ frames = duration / time }
-
-    let frame = 0;
-    matrix.clear();
-
-    let prevIcon = icon;
-
-    let anim = setInterval(nextFrame, time);
-    
-    function nextFrame() {
-        if (frame >= frames) {
-            clearInterval(anim);
-            matrix.clear();
-            frame = 0;
-        } else {
-            frame++;
-            let dummy = [];
-            let i = 0;
-            prevIcon.forEach(function(string){
-               dummy[i] = string.substring(1, 8) + string.substring(0);
-               i++;
-            });
-            prevIcon = dummy;
-            matrix.draw(prevIcon);
-        }
+      readData.push( doc.id );
+      console.log('wrote file')
+      fs.writeFile(databaseFile, readData.join(','), (err) => {
+        if (err) {
+          console.log('❌ Error')
+        };
+        console.log('The file has been saved!');
+      });
     }
-}
 
-function pulse( icon , pulses , speed ) {
-
-    const step = 10 * speed;
-    let frames = pulses * (100 / step)*2;
-    let time = 200;
-
-    let anim = setInterval(nextFrame, time);
-
-    let brightness = 0;
-    let direction = 1
-    let frame = 0;
-
-    matrix.clear();
-
-    function nextFrame() {
-        if (frame >= frames) {
-            clearInterval(anim);
-            matrix.clear();
-            frame = 0;
-            matrix.brightness(100);
-        } else {
-            frame++;
-            matrix.brightness(brightness);
-            matrix.draw(icon);
-
-            if( direction == 1 && brightness >= 100 ){
-                direction = 0;
-            }
-            if( direction == 0 && brightness <= 0 ){
-                direction = 1;
-            }
-            if(direction){
-                brightness = brightness + step;
-            }else{
-                brightness = brightness - step
-            }
-        }
+    if( readCounter === 0 ){
+      readData.push( doc.id )
     }
-}
+
+  });
+
+  if( readCounter === 0 && readData.length <= 0 ){
+    fs.writeFile(databaseFile, readData.join(','), (err) => {
+        if (err) {
+          console.log('❌ Error')
+        };
+        console.log('The file has been saved!');
+      });
+  }
+
+  readCounter++;
+}, err => {
+  console.log(`Encountered error: ${err}`);
+});
+
+// function shutdownLittlePrinter(){
+//   console.log('LittlePrinter is shutting down 😴');
+//   // matrix.draw(icon.boot);
+
+//   setTimeout( function(){
+//     // matrix.clear();
+//     shutdown(function(output){
+//       console.log(output);
+//     });
+//   }, 1200);
+//   //process.exit();
+// }
+// function shutdown(callback){
+//   exec('shutdown now', function(error, stdout, stderr){ callback(stdout); });
+// }
