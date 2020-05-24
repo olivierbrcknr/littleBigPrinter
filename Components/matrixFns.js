@@ -1,6 +1,6 @@
 
 // Matrix functions
-export function showIconFor( icon , duration ) {
+function showIconFor( matrix, icon , duration ) {
 
     matrix.clear();
     matrix.draw(icon);
@@ -10,9 +10,9 @@ export function showIconFor( icon , duration ) {
     }, duration);
 }
 
-export function sinusAnim( icon , duration ) {
+function sinusAnim( matrix, icon , duration ) {
 
-    const time = 150;
+    const time = 30;
 
     let frames = 10;
     if( duration ){ frames = duration / time }
@@ -43,7 +43,7 @@ export function sinusAnim( icon , duration ) {
     }
 }
 
-export function pulse( icon , pulses , speed ) {
+function pulse( matrix, icon , pulses , speed ) {
 
     const step = 10 * speed;
     let frames = pulses * (100 / step)*2;
@@ -82,3 +82,6 @@ export function pulse( icon , pulses , speed ) {
         }
     }
 }
+
+
+module.exports.sinusAnim = sinusAnim;

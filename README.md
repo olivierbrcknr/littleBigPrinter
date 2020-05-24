@@ -1,62 +1,59 @@
 # LittleBigPrinter
 
 ![LittleBigPrinter](00_img/title.jpg)
-This is a new version of a fax machine.
 
-Send us a message here → https://little-big-printer-messenger.now.sh/
+Send us a message here → [Messenger](https://little-big-printer-messenger.now.sh/)
 
-# Hardware Setup
+## Hardware Setup
 
 The laser file for the case iy in the `00_case` folder. It is intended for 3mm thick acrylic glass.
 
-# Raspberry Pi Setup
+### Components
 
-## Pin Setup
+* Raspberry Pi
+* [Thermal Printer](https://www.adafruit.com/product/597)
+* [LED Matrix](https://www.adafruit.com/product/1080)
+
+### Pin Setup
 
 |Printer|TTY|
 
+## Installation
 
-## Install Raspbian
+### Prepare The Raspberry Pi
 
-[Link](https://www.raspberrypi.org/documentation/installation/installing-images/)
+Download a [Rapsbian](https://www.raspberrypi.org/documentation/installation/installing-images/) image and write it onto an SD card.
 
+After the setup, allow SSH connections, to interface with it on your Computer. Therefore load the [`00_pi-setup/ssh`](00_pi-setup/ssh) onto the installation SD card's root.
 
-## Allow SSH connections
+After that load the [`00_pi-setup/wpa_supplicant.conf`](00_pi-setup/wpa_supplicant.conf), update it with your WiFi credentials and upload it to the SD card root as well.
 
-[Link](https://hackernoon.com/raspberry-pi-headless-install-462ccabd75d0)
+Now install Raspbian onto the Raspberry Pi.
 
-## Configure WiFi
+Once installed you should be able to access it on your computer terminal. To find it from your computer, install *arp-scan*, I recommend using [Homebrew](https://brew.sh/): 
 
-[Link](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi)
+```sh
+brew install arp-scan
+``` 
 
-&rarr; Find suitable files within the `00_pi-setup` folder.
+Then run `sudo arp-scan --localnet`  and search for 'Raspberry'.
 
-## Find Raspberry in terminal
+Once your have found the correct IP address, you should be able to log into its terminal using `ssh pi@<IP-address>`, the default password is `raspberry`
 
-to find the IP, connect a screen/keyboard to the pi and open a terminal and write `ifconfig` and look for the ip address of `eth0`
-or to find it from your computer, install *arp-scan* `brew install arp-scan` and then run `sudo arp-scan --localnet`  and search for 'Raspberry'.
+Enable GPIO and I2C to enable the hardware components to communicate with the Raspberry. To do so, open the configuration of the Raspberry by entering:
 
-`ssh pi@<IP-address>` (← Enter here your Raspberry's IP address) password is `raspberry`
-
-connect via FTP to upload your code
-```
-Host = <IP-address>
-Username = pi
-Password = raspberry
-Port = 22
-```
-
-## Enable GPIO and I2C
-
-Open the Raspberry in your terminal and open the config to enable GPI and I2C.
 ```sh
 sudo raspi-config
 ```
 
-Enable pigpiod like in [this git](https://github.com/joan2937/pigpio/tree/master/util).
+Enable pigpiod by making it executable ([source](https://github.com/joan2937/pigpio/tree/master/util)):
 
+```sh
+sudo chmod +x /etc/init.d/pigpiod
+```
 
-PS: Keep in mind to update you locales:
+Keep in mind to update you locale according to your location:
+
 ```sh
 export LANGUAGE=en_GB.UTF-8
 export LANG=en_GB.UTF-8
@@ -65,9 +62,7 @@ locale-gen en_GB.UTF-8
 sudo dpkg-reconfigure locales
 ```
 
-## Node
-
-update node-red, install node and yarn
+Finally update node-red, install [node js](https://nodejs.org/) and [yarn](https://yarnpkg.com/). This should to the trick:
 
 ```sh
 sudo apt update
@@ -82,19 +77,27 @@ sudo apt-get update && sudo apt-get install yarn
 
 More detailed description [here](https://www.hackster.io/IainIsCreative/setting-up-the-raspberry-pi-and-johnny-five-56d60f).
 
-## Install software
+### Upload LittleBigPrinter Program
 
-The code is based on node js via yarn, so open the directory and hit `yarn install`.
+For easier upload of the repository files, connect via FTP to upload your code. The credentials for that are as follows:
 
+```
+Host = <IP-address>
+Username = pi
+Password = raspberry
+Port = 22
+```
 
-## Run the node js server after boot
+Upload this folder to the Desktop and open it in your terminal window `cd Desktop/littleBigPrinter`.  
+Once in the folder hit `yarn install` to install all relevant dependencies.
 
-Edit this file `sudo nano .bashrc` and add this:
+To let the printer automatically start the script on boot, edit the *.bashrc* file, by hitting `sudo nano .bashrc` and add the following:
+
 ```sh
 # Run node js server
 echo "Starting NodeJS Server"
 cd /home/pi/Desktop/littleBigPrinter
 sudo yarn start
 ```
-Then reboot.
 
+Now the printer should automatically start on reboot.

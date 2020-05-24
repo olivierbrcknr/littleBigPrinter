@@ -4,13 +4,13 @@ const Printer = require('thermalprinter');
 var fs = require('fs');
 // const exec = require('child_process').exec;
 
-
-
 // Modules Hardware
 const five  = require('johnny-five');
 const Raspi = require('raspi-io').RaspiIO;
 
-var firebase = require('firebase');
+const icon = require('./Components/matrix-icons');
+const anims = require('./Components/matrixFns');
+const firebase = require('firebase');
 const firebaseConfig = require('dotenv').config();
 
 let firestore = null;
@@ -50,8 +50,6 @@ fs.readFile(databaseFile,'utf8', (err, data) => {
 });
 
 
-// const icon = require('./Components/matrix-icons');
-
 // ——————————————————————————————————————————
 
 // Variables
@@ -79,7 +77,7 @@ function resetPrinterSettings(){
 /*
 //Printer commands
 
- var path = __dirname + '/images/nodebot.png';
+var path = __dirname + '/images/nodebot.png';
 
 .indent(10)
 .horizontalLine(16)
@@ -93,11 +91,27 @@ function resetPrinterSettings(){
 .printLine('second line')
 .printImage(path)
 .print(function() {
-    console.log('Init Done');
-    resetPrinterSettings();
+  console.log('Init Done');
+  resetPrinterSettings();
 });
 
 */
+
+
+// init Johnny-five
+board.on('ready', () => {
+
+  j5Ready = true;
+  console.log('J5 Ready 🤖');
+
+  // Setup hardware
+  matrix = new five.Led.Matrix({
+    addresses: [0x70],
+    controller: "HT16K33",
+    rotation: 1
+  });
+
+});
 
 
 
@@ -118,23 +132,38 @@ sp.on('open',function() {
       .print(function() {
         resetPrinterSettings();
         console.log('LittlePrinter is ready');
-        // initIntervals();
       });
   });
 });
 
 
-
 let observer = messagesDB.onSnapshot(snapshot => {
+
+  anims.sinusAnim( matrix, icon.sinus , 500 );
 
   snapshot.forEach(doc => {
 
     if( readData.length > 0 && readData.indexOf(doc.id) <= -1 ){
 
+      let d = new Date( doc.data().Date.seconds * 1000)//.toLocaleString("de-DE", {timeZone: "Australia/Brisbane"});
+      let printDate = d.getFullYear().toString().substring(2) + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + +d.getHours() + ":" + d.getMinutes();
+
+      let printName = doc.data().Name;
+      let addOnSpaces = 17 - printName.length;
+      for( let i = 0; i < addOnSpaces; i++ ){
+        printName = printName + ' ';
+      }
+
+      if( printName.length > 17 ){
+        printName = printName.slice(0, ( 17 - printName.length ) );
+      }
+
       printer
+        .horizontalLine(16)
+        .printLine(printName + ' ' + printDate)
+        .printLine('------')
         .printLine(doc.data().Message)
         .printLine(' ')
-        .horizontalLine(16)
         .printLine(' ')
         .print(function() {
           resetPrinterSettings();
@@ -160,11 +189,11 @@ let observer = messagesDB.onSnapshot(snapshot => {
 
   if( readCounter === 0 && readData.length <= 0 ){
     fs.writeFile(databaseFile, readData.join(','), (err) => {
-        if (err) {
-          console.log('❌ Error')
-        };
-        console.log('The file has been saved!');
-      });
+      if (err) {
+        console.log('❌ Error')
+      };
+      console.log('The file has been saved!');
+    });
   }
 
   readCounter++;
