@@ -30,11 +30,11 @@ After that load the [`00_pi-setup/wpa_supplicant.conf`](00_pi-setup/wpa_supplica
 
 Now install Raspbian onto the Raspberry Pi.
 
-Once installed you should be able to access it on your computer terminal. To find it from your computer, install *arp-scan*, I recommend using [Homebrew](https://brew.sh/): 
+Once installed you should be able to access it on your computer terminal. To find it from your computer, install *arp-scan*, I recommend using [Homebrew](https://brew.sh/):
 
 ```sh
 brew install arp-scan
-``` 
+```
 
 Then run `sudo arp-scan --localnet`  and search for 'Raspberry'.
 
@@ -60,6 +60,44 @@ export LANG=en_GB.UTF-8
 export LC_ALL=en_GB.UTF-8
 locale-gen en_GB.UTF-8
 sudo dpkg-reconfigure locales
+```
+
+Now we need to disable the power-safe mode, so that the printer keeps printing. Therefore we need to open and edit this file.
+
+```sh
+sudo nano /etc/network/interfaces
+```
+
+Then add or update the following lines to the document and save it:
+
+```sh
+allow-hotplug wlan0
+iface wlan0 inet manual
+post-up iw wlan0 set power_save off
+```
+
+Add to this file:
+
+```sh
+sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+```
+
+The following lines:
+
+```sh
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+point-rpi
+
+# Run shell script to boot node js server
+@sleep 5s # give time to start node server
+
+# @sh /home/pi/Desktop/littleBigPrinter/boot.sh 
+# this script automatically starts the node script within a terminal window
+@lxterminal -e "/home/pi/Desktop/littleBigPrinter/boot.sh"
+
+xset s off #
+xset -dpms 
 ```
 
 Finally update node-red, install [node js](https://nodejs.org/) and [yarn](https://yarnpkg.com/). This should to the trick:
@@ -88,7 +126,7 @@ Password = raspberry
 Port = 22
 ```
 
-Upload this folder to the Desktop and open it in your terminal window `cd Desktop/littleBigPrinter`.  
+Upload this folder to the Desktop and open it in your terminal window `cd Desktop/littleBigPrinter`.
 Once in the folder hit `yarn install` to install all relevant dependencies.
 
 To let the printer automatically start the script on boot, edit the *.bashrc* file, by hitting `sudo nano .bashrc` and add the following:

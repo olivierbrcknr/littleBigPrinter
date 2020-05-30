@@ -1,7 +1,8 @@
 // Modules Printer
 const SerialPort = require('serialport');
 const Printer = require('thermalprinter');
-var fs = require('fs');
+const fs = require('fs');
+const moment = require('moment-timezone');
 // const exec = require('child_process').exec;
 
 // Modules Hardware
@@ -145,8 +146,9 @@ let observer = messagesDB.onSnapshot(snapshot => {
 
     if( readData.length > 0 && readData.indexOf(doc.id) <= -1 ){
 
-      let d = new Date( doc.data().Date.seconds * 1000)//.toLocaleString("de-DE", {timeZone: "Australia/Brisbane"});
-      let printDate = d.getFullYear().toString().substring(2) + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + +d.getHours() + ":" + d.getMinutes();
+      // get date and convert to CET time
+      let printDate = moment.unix( doc.data().Date.seconds ).tz("Europe/Berlin").format("YY-MM-DD HH:mm");
+
 
       let printName = doc.data().Name;
       let addOnSpaces = 17 - printName.length;
