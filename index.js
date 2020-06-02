@@ -138,6 +138,54 @@ sp.on('open',function() {
 });
 
 
+var needsToPrint = [];
+var isPrinting = false;
+
+function startPrintingProcess ( message ) {
+
+  isPrinting = true;
+
+  // replace all not printable characters
+  let printName = message.name.replace(/[^\x20-\x7EÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ£ƒáíóúñÑªº¿¬½¼¡«»░▒▓│┤╣║╗╝¢¥┐└┴┬├─┼╚╔╩╦╠═╬┘┌█▄▀ß²■\n]/g, "?");
+  let printMessage = message.message.replace(/[^\x20-\x7EÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ£ƒáíóúñÑªº¿¬½¼¡«»░▒▓│┤╣║╗╝¢¥┐└┴┬├─┼╚╔╩╦╠═╬┘┌█▄▀ß²■\n]/g, "?");
+
+  printer
+    .horizontalLine(16)
+    .printLine(printName + ' ' + message.date)
+    .printLine('------')
+    .printLine(printMessage)
+    .printLine(' ')
+    .printLine(' ')
+    .print(function() {
+      resetPrinterSettings();
+      console.log('Printed Message from', printName);
+
+      isPrinting = false;
+      checkForPrint();
+
+    });
+}
+
+function checkForPrint(){
+
+  console.log( needsToPrint.length, 'Messages left to print' )
+
+  if( needsToPrint.length > 0 && !isPrinting ){
+
+    let message = needsToPrint[0]
+    startPrintingProcess(message);
+    needsToPrint.shift();
+
+  }else{
+    console.log( 'sorry, need to wait' )
+  }
+
+  if( needsToPrint.length <= 0 ){
+    console.log('All printed for now');
+  }
+
+}
+
 let observer = messagesDB.onSnapshot(snapshot => {
 
   anims.sinusAnim( matrix, icon.sinus , 500 );
@@ -145,10 +193,10 @@ let observer = messagesDB.onSnapshot(snapshot => {
   snapshot.forEach(doc => {
 
     if( readData.length > 0 && readData.indexOf(doc.id) <= -1 ){
+    // if( doc.data().Date.seconds > 1591056000 ){
 
       // get date and convert to CET time
       let printDate = moment.unix( doc.data().Date.seconds ).tz("Europe/Berlin").format("YY-MM-DD HH:mm");
-
 
       let printName = doc.data().Name;
       let addOnSpaces = 17 - printName.length;
@@ -160,18 +208,17 @@ let observer = messagesDB.onSnapshot(snapshot => {
         printName = printName.slice(0, ( 17 - printName.length ) );
       }
 
-      printer
-        .horizontalLine(16)
-        .printLine(printName + ' ' + printDate)
-        .printLine('------')
-        .printLine(doc.data().Message)
-        .printLine(' ')
-        .printLine(' ')
-        .print(function() {
-          resetPrinterSettings();
-          console.log('Printed Message', doc.data().Message);
-          // initIntervals();
-        });
+      if( Array.isArray(needsToPrint) === false ){
+        needsToPrint = [];
+      }
+
+      needsToPrint.push({
+        name: printName,
+        date: printDate,
+        message: doc.data().Message
+      })
+
+      checkForPrint();
 
       readData.push( doc.id );
       console.log('wrote file')
