@@ -1,28 +1,61 @@
 # LittleBigPrinter
 
+In times of instant messaging, a small analog printer makes it way into the light, connecting people. It is meant to hang in a shared apartment, an office, or wherever you like and when a message arrives, it is meant to be seen by whoever sees it. No private hidden message, no hiding behind a smartphone screen and writing with one specific friend, no constant alert status, waiting for the next message.  
+
+*LittleBigPrinter — the fax machine for millennials.*
+
+Send a message here → [Messenger](https://little-big-printer-messenger.now.sh/)
+
 ![LittleBigPrinter](00_img/title.jpg)
 
-Send us a message here → [Messenger](https://little-big-printer-messenger.now.sh/)
 
 ## Hardware Setup
-
-The laser file for the case iy in the `00_case` folder. It is intended for 3mm thick acrylic glass.
 
 ### Components
 
 * Raspberry Pi
-* [Thermal Printer](https://www.adafruit.com/product/597)
+* [Adafruit Thermal Printer](https://www.adafruit.com/product/597)
 * [LED Matrix](https://www.adafruit.com/product/1080)
+* [Power Supply 5V 3A](https://www.meanwell-web.com/en-gb/ac-dc-single-output-enclosed-power-supply-output-rs--15--5)
+* [USB to TTL Converter](https://www.amazon.de/SODIAL-USB-TTL-Konverter-Modul-eingebautem-CP2102/dp/B008RF73CS)
+
+### Case
+
+What is needed to build the case and wall mount:
+
+* 230 ✕ 160 mm, 3 mm thick acrylic glass (The `.dxf` file for the case is in the `00_case` folder)
+* 12 M3✕10 mm screws (+ 2-3 additional ones for cutting threads)
+* 4 M3 nuts
+* 4 aluminium tubes, Ø5 mm (inside ~ Ø2.5mm to cut in a M3 thread) 
+* A **three** core cable for power supply
+
+![Assembly](00_img/assembly.png)
 
 ### Pin Setup
 
-|Printer|TTY|
+|Raspberry Pi    |Components         |
+|----------------|-------------------|
+|4 (5V)          |Power Supply +     |
+|6 (GND)         |Power Supply -     |
+|2 (5V)          |LED Matrix +       |
+|9 (GND)         |LED Matrix -       |
+|3 (GPIO 2 / SDA)|LED Matrix D       |
+|5 (GPIO 3 / SCL)|LED Matrix C       |
+|14 (GND)        |Printer Serial GND |
+
+|Printer|Other Components|
+|-------|----------------|
+|Tx     |TTY Rx          |
+|Rx     |TTY Tx          |
+|Vin    |Power Supply +  |
+|GND    |Power Supply -  |
+
 
 ## Installation
 
 ### Prepare The Raspberry Pi
 
-Download a [Rapsbian](https://www.raspberrypi.org/documentation/installation/installing-images/) image and write it onto an SD card.
+Download a [Raspbian](https://www.raspberrypi.org/documentation/installation/installing-images/) image and write it onto an SD card.
 
 After the setup, allow SSH connections, to interface with it on your Computer. Therefore load the [`00_pi-setup/ssh`](00_pi-setup/ssh) onto the installation SD card's root.
 
@@ -139,3 +172,10 @@ sudo yarn start
 ```
 
 Now the printer should automatically start on reboot.
+
+## ToDos
+
+- [ ] Refactor the serial connection to get rid of TTY USB dongle → [Guide](https://learn.adafruit.com/networked-thermal-printer-using-cups-and-raspberry-pi/connect-and-configure-printer) 
+- [ ] Implement multi printer usage (per IDs within the database)
+- [ ] Add a buzzer to acoustically inform about new messages
+- [ ] Add a LED and button (or something completely different) to change the paper colour entry
