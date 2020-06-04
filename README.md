@@ -4,7 +4,7 @@ In times of instant messaging, a small analog printer makes it way into the ligh
 
 *LittleBigPrinter — the fax machine for millennials.*
 
-Send a message here → [Messenger](https://little-big-printer-messenger.now.sh/)
+Send a message here → [Messenger](https://github.com/olivierbrcknr/LittleBigPrinter-Messenger)
 
 ![LittleBigPrinter](00_img/title.jpg)
 
@@ -13,7 +13,7 @@ Send a message here → [Messenger](https://little-big-printer-messenger.now.sh/
 
 ### Components
 
-* Raspberry Pi
+* [Raspberry Pi](https://www.raspberrypi.org/)
 * [Adafruit Thermal Printer](https://www.adafruit.com/product/597)
 * [LED Matrix](https://www.adafruit.com/product/1080)
 * [Power Supply 5V 3A](https://www.meanwell-web.com/en-gb/ac-dc-single-output-enclosed-power-supply-output-rs--15--5)
@@ -23,7 +23,7 @@ Send a message here → [Messenger](https://little-big-printer-messenger.now.sh/
 
 What is needed to build the case and wall mount:
 
-* 230 ✕ 160 mm, 3 mm thick acrylic glass (The `.dxf` file for the case is in the `00_case` folder)
+* 230 ✕ 160 mm, 3 mm thick acrylic glass. You can find the laser file here: [`00_case/laser.dxf`](00_case/laser.dxf)
 * 12 M3✕10 mm screws (+ 2-3 additional ones for cutting threads)
 * 4 M3 nuts
 * 4 aluminium tubes, Ø5 mm (inside ~ Ø2.5mm to cut in a M3 thread) 
@@ -43,12 +43,13 @@ What is needed to build the case and wall mount:
 |5 (GPIO 3 / SCL)|LED Matrix C       |
 |14 (GND)        |Printer Serial GND |
 
-|Printer|Other Components|
-|-------|----------------|
-|Tx     |TTY Rx          |
-|Rx     |TTY Tx          |
-|Vin    |Power Supply +  |
-|GND    |Power Supply -  |
+|Printer   |Other Components|
+|----------|----------------|
+|Tx        |TTY Rx          |
+|Rx        |TTY Tx          |
+|Serial GND|Rasp 14 (GND)   |
+|Vin       |Power Supply +  |
+|GND       |Power Supply -  |
 
 
 ## Installation
@@ -178,4 +179,4 @@ Now the printer should automatically start on reboot.
 - [ ] Refactor the serial connection to get rid of TTY USB dongle → [Guide](https://learn.adafruit.com/networked-thermal-printer-using-cups-and-raspberry-pi/connect-and-configure-printer) 
 - [ ] Implement multi printer usage (per IDs within the database)
 - [ ] Add a buzzer to acoustically inform about new messages
-- [ ] Add a LED and button (or something completely different) to change the paper colour entry
+- [ ] Add a RGB LED and button (or something completely different) to change the paper colour entry
