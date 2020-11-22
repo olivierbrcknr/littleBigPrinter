@@ -4,7 +4,7 @@ In times of instant messaging, a small analog printer makes it way into the ligh
 
 *LittleBigPrinter — the fax machine for millennials.*
 
-Send a message here → [Messenger](https://github.com/olivierbrcknr/LittleBigPrinter-Messenger)
+Send a message here → [Messenger](https://little-big-printer-messenger.now.sh/)
 
 ![LittleBigPrinter](00_img/title.jpg)
 
