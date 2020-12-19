@@ -16,7 +16,7 @@ If you like this project, please also check out my other project → [FlipDot Co
 
 ### Components
 
-* ESP32
+* [ESP32](https://www.az-delivery.de/en/products/esp32-developmentboard)
 * [Adafruit Thermal Printer](https://www.adafruit.com/product/597)
 * [LED Matrix](https://www.adafruit.com/product/1080)
 * [Power Supply 5V 3A](https://www.meanwell-web.com/en-gb/ac-dc-single-output-enclosed-power-supply-output-rs--15--5)
@@ -35,30 +35,17 @@ What is needed to build the case and wall mount:
 
 ### Pin Setup
 
-**!!!! CHANGE**
-
 |ESP32           |Components         | 
 |----------------|-------------------|
-|4 (5V)          |Power Supply +     |
-|6 (GND)         |Power Supply -     |
-|2 (5V)          |LED Matrix +       |
-|9 (GND)         |LED Matrix -       |
-|3 (GPIO 2 / SDA)|LED Matrix D       |
-|5 (GPIO 3 / SCL)|LED Matrix C       |
-|GND            |Printer Serial GND |
-|19              |Printer Tx         |
-|18              |Printer Rx         |
-
-
-
-|Printer   |Other Components|
-|----------|----------------|
-|Tx        |TTY Rx          |
-|Rx        |TTY Tx          |
-|Serial GND|Rasp 14 (GND)   |
-|Vin       |Power Supply +  |
-|GND       |Power Supply -  |
-
+|Vin             |Power Supply +     |
+|GND             |Power Supply -     |
+|5V              |LED Matrix +       |
+|GND             |LED Matrix -       |
+|GPIO 21         |LED Matrix D       |
+|GPIO 22         |LED Matrix C       |
+|GND             |Printer Serial GND |
+|GPIO 19         |Printer Tx         |
+|GPIO 18         |Printer Rx         |
 
 ## Software
 

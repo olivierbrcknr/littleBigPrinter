@@ -66,7 +66,6 @@ void setup() {
   Firebase.setFloatDigits(2);
   Firebase.setDoubleDigits(6);
 
-
   if (!Firebase.beginStream(firebaseData, path))
   {
       Serial.println("------------------------------------");
@@ -77,6 +76,8 @@ void setup() {
   }
 
   matrix.begin(0x70);
+
+  Anim_StartUp();
 
   pinMode(7, OUTPUT); digitalWrite(7, LOW);
   mySerial.begin(19200);
@@ -184,11 +185,7 @@ void moveCurrentMessage( String n, String m, String t, String id ) {
 
 void printMessage( String n, String m, String t, String id ){
 
-  matrix.clear();
-  matrix.drawBitmap(0, 0, sinus_icn, 8, 8, LED_ON);
-  matrix.writeDisplay();
-  delay(500);
-
+  Anim_PrintingMessage();
 
   String whiteSpace = "";
   int whiteSpaceCount = 18 - n.length();
@@ -220,4 +217,29 @@ void printMessage( String n, String m, String t, String id ){
   isPrinting = false;
 
   moveCurrentMessage(n,m,t,id);
+
+  clearMatrix();
+}
+
+
+void clearMatrix(){
+  matrix.clear();
+  matrix.writeDisplay(); 
+}
+
+void Anim_PrintingMessage(){
+  matrix.clear();
+  matrix.drawBitmap(0, 0, sinus_icn, 8, 8, LED_ON);
+  matrix.writeDisplay();
+}
+
+void Anim_StartUp(){
+
+  for( int i = 0; i < 8; i++ ){
+    matrix.clear();
+    matrix.drawLine(0,i,7,i, LED_ON);
+    matrix.writeDisplay();
+    delay(100);
+  } 
+  clearMatrix();
 }
