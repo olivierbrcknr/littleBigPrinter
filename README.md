@@ -8,7 +8,7 @@ Send a message here → [Messenger](https://little-big-printer-messenger.now.sh/
 
 ![LittleBigPrinter](00_img/title.jpg)
 
-If you like this project, please also check out my other project → [FlipDot Communicator](olivierbrcknr/flipdot-communicator)
+If you like this project, please also check out my other project → [FlipDot Communicator](https://github.com/olivierbrcknr/flipdot-communicator)
 
 ## Hardware Setup
 
@@ -37,7 +37,7 @@ What is needed to build the case and wall mount:
 
 **!!!! CHANGE**
 
-|ESP32           |Components         |
+|ESP32           |Components         | 
 |----------------|-------------------|
 |4 (5V)          |Power Supply +     |
 |6 (GND)         |Power Supply -     |
@@ -45,7 +45,11 @@ What is needed to build the case and wall mount:
 |9 (GND)         |LED Matrix -       |
 |3 (GPIO 2 / SDA)|LED Matrix D       |
 |5 (GPIO 3 / SCL)|LED Matrix C       |
-|14 (GND)        |Printer Serial GND |
+|GND            |Printer Serial GND |
+|19              |Printer Tx         |
+|18              |Printer Rx         |
+
+
 
 |Printer   |Other Components|
 |----------|----------------|
@@ -66,10 +70,11 @@ The software for the ESP32 is built using the [Arduino IDE](https://www.arduino.
 
 You will need to install these libraries for the code to work:
 
-* [ESP32](espressif/arduino-esp32)
-* [Firebase ESP32](mobizt/Firebase-ESP32)
-* [Adafruit LED Backpack](adafruit/Adafruit_LED_Backpack)
-* [Adafruit Thermal Printer Library](adafruit/Adafruit-Thermal-Printer-Library)
+* [ESP32](https://github.com/espressif/arduino-esp32)
+* [Firebase ESP32](https://github.com/mobizt/Firebase-ESP32)
+* [Adafruit LED Backpack](https://github.com/adafruit/Adafruit_LED_Backpack)
+* [Adafruit Thermal Printer Library](https://github.com/adafruit/Adafruit-Thermal-Printer-Library)
+* [Adafruit RTClib](https://github.com/adafruit/RTClib)
 
 ### Flash the ESP32
 
